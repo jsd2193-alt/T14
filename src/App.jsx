@@ -9,7 +9,7 @@ function App() {
     const [selectedOption, setSelectedOption] = useState(null);
     const [isAnswered, setIsAnswered] = useState(false);
     const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-    const [audio] = useState(new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3')); // A calm ambient track
+    const [audio] = useState(new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3')); // A more soulful, piano-heavy track fitting CCM style
 
     useEffect(() => {
         audio.loop = true;
