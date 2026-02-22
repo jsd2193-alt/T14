@@ -8,6 +8,30 @@ function App() {
     const [answers, setAnswers] = useState([]);
     const [selectedOption, setSelectedOption] = useState(null);
     const [isAnswered, setIsAnswered] = useState(false);
+    const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+    const [audio] = useState(new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3')); // A calm ambient track
+
+    useEffect(() => {
+        audio.loop = true;
+        audio.volume = 0.1; // Low volume for background
+
+        if (isMusicPlaying) {
+            audio.play().catch(err => {
+                console.error("Audio play failed:", err);
+                setIsMusicPlaying(false);
+            });
+        } else {
+            audio.pause();
+        }
+
+        return () => {
+            audio.pause();
+        };
+    }, [isMusicPlaying, audio]);
+
+    const toggleMusic = () => {
+        setIsMusicPlaying(!isMusicPlaying);
+    };
 
     const startQuiz = () => {
         setGameState('quiz');
@@ -140,49 +164,58 @@ function App() {
     }
 
     return (
-        <div className="glass-card fade-in">
-            <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${((currentIdx + 1) / QUESTIONS.length) * 100}%` }}></div>
-            </div>
-
-            <div className="category-badge">{currentQuestion.category}</div>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', lineHeight: '1.4' }}>
-                Q{currentIdx + 1}. {currentQuestion.question}
-            </h3>
-
-            <div className="options">
-                {currentQuestion.options.map((opt, idx) => {
-                    let className = "option-btn";
-                    if (isAnswered) {
-                        if (idx === currentQuestion.answer) className += " correct";
-                        else if (idx === selectedOption) className += " wrong";
-                    } else if (idx === selectedOption) {
-                        className += " selected";
-                    }
-
-                    return (
-                        <button key={idx} className={className} onClick={() => handleSelect(idx)} disabled={isAnswered}>
-                            {opt}
-                        </button>
-                    );
-                })}
-            </div>
-
-            {!isAnswered ? (
-                <button className="btn btn-primary" onClick={handleSubmit} disabled={selectedOption === null} style={{ width: '100%', marginTop: '1rem' }}>
-                    Submit Answer
-                </button>
-            ) : (
-                <div className="fade-in">
-                    <div className="explanation">
-                        <strong>Explantion:</strong> {currentQuestion.explanation}
-                    </div>
-                    <button className="btn btn-primary" onClick={nextQuestion} style={{ width: '100%', marginTop: '1rem' }}>
-                        {currentIdx + 1 === QUESTIONS.length ? 'Show Results' : 'Next Question'}
-                    </button>
+        <>
+            <div className="glass-card fade-in">
+                <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: `${((currentIdx + 1) / QUESTIONS.length) * 100}%` }}></div>
                 </div>
-            )}
-        </div>
+
+                <div className="category-badge">{currentQuestion.category}</div>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', lineHeight: '1.4' }}>
+                    Q{currentIdx + 1}. {currentQuestion.question}
+                </h3>
+
+                <div className="options">
+                    {currentQuestion.options.map((opt, idx) => {
+                        let className = "option-btn";
+                        if (isAnswered) {
+                            if (idx === currentQuestion.answer) className += " correct";
+                            else if (idx === selectedOption) className += " wrong";
+                        } else if (idx === selectedOption) {
+                            className += " selected";
+                        }
+
+                        return (
+                            <button key={idx} className={className} onClick={() => handleSelect(idx)} disabled={isAnswered}>
+                                {opt}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {!isAnswered ? (
+                    <button className="btn btn-primary" onClick={handleSubmit} disabled={selectedOption === null} style={{ width: '100%', marginTop: '1rem' }}>
+                        Submit Answer
+                    </button>
+                ) : (
+                    <div className="fade-in">
+                        <div className="explanation">
+                            <strong>Explantion:</strong> {currentQuestion.explanation}
+                        </div>
+                        <button className="btn btn-primary" onClick={nextQuestion} style={{ width: '100%', marginTop: '1rem' }}>
+                            {currentIdx + 1 === QUESTIONS.length ? 'Show Results' : 'Next Question'}
+                        </button>
+                    </div>
+                )}
+            </div>
+            <button
+                className={`music-toggle ${isMusicPlaying ? 'playing' : ''}`}
+                onClick={toggleMusic}
+                title="Music Toggle"
+            >
+                {isMusicPlaying ? '🎵' : '🔇'}
+            </button>
+        </>
     );
 }
 

@@ -38,7 +38,9 @@ body {
   padding: 2rem;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: 'Outfit', sans-serif;
 }
 
@@ -148,6 +150,65 @@ h1, h2, h3 {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.music-toggle {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.music-toggle:hover {
+  transform: scale(1.1);
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.music-toggle.playing {
+  color: var(--secondary);
+  border-color: var(--secondary);
+  box-shadow: 0 0 15px rgba(236, 72, 153, 0.2);
+}
+
+/* Tooltip for the music toggle */
+.music-toggle::after {
+  content: 'Music';
+  position: absolute;
+  top: -2.5rem;
+  right: 0;
+  background: var(--card-bg);
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.music-toggle:hover::after {
+  opacity: 1;
 }
