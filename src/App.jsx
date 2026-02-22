@@ -27,30 +27,61 @@ function App() {
 
     const playSound = (isCorrect) => {
         // Web Speech API for voice feedback
-        const msg = new SpeechSynthesisUtterance();
-        msg.text = isCorrect ? "Correct!" : "Wrong answer.";
-        msg.lang = 'en-US';
-        msg.rate = 1.0;
-        window.speechSynthesis.speak(msg);
+        try {
+            const msg = new SpeechSynthesisUtterance();
+            msg.text = isCorrect ? "Correct!" : "Wrong answer.";
+            msg.lang = 'en-US';
+            msg.rate = 1.1; // Slightly faster for responsiveness
+            window.speechSynthesis.speak(msg);
+        } catch (e) {
+            console.error("SpeechSynthesis error:", e);
+        }
 
-        // Also a simple Web Audio API ding for correct answers
-        if (isCorrect && (window.AudioContext || window.webkitAudioContext)) {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
+        // Web Audio API ding for correct answers
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+                const audioCtx = new AudioContext();
 
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
+                // Active resume for suspended contexts
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
 
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
-            oscillator.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.1); // E6
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
 
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
 
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.3);
+                if (isCorrect) {
+                    // Success sound: Rising pleasant tone
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+
+                    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.5);
+                } else {
+                    // Fail sound: Lower duller tone
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
+
+                    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.3);
+                }
+            }
+        } catch (e) {
+            console.error("Web Audio API error:", e);
         }
     };
 
